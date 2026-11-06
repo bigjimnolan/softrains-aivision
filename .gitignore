@@ -1,0 +1,8 @@
+server.crt
+server.key
+*.key
+*/bin/*
+rpc_resized_300x300.jpg
+tast
+test
+__debug*

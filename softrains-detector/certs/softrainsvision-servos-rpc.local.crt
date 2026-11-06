@@ -1,0 +1,73 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 4120 (0x1018)
+        Signature Algorithm: ecdsa-with-SHA384
+        Issuer: C=US, O=Softrains, CN=Softrains Intermediate CA
+        Validity
+            Not Before: Jul  4 00:59:44 2026 GMT
+            Not After : Aug  5 00:59:44 2027 GMT
+        Subject: CN=softrainsvision-servos-rpc.local
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:8c:59:0e:81:be:da:ae:95:28:f1:e5:97:b6:9f:
+                    8b:0e:62:b1:27:ba:40:ab:bb:d8:15:61:d4:89:79:
+                    35:26:23:f8:cc:01:89:80:a3:87:d0:8f:24:e9:2f:
+                    9c:02:52:bb:25:26:fd:26:af:f2:03:8a:cf:91:cb:
+                    e0:54:b5:d1:e2:84:d4:f2:67:35:16:13:77:4b:14:
+                    16:20:8f:83:ef:5e:9f:a7:83:15:ff:5e:1e:56:a4:
+                    3d:98:6c:de:8a:14:08:76:a6:62:e7:a0:6f:0e:bd:
+                    d5:99:52:0b:70:e3:5d:00:2f:41:81:e2:68:8d:c4:
+                    5d:3c:c5:dc:d8:97:98:4d:ae:03:f1:0a:be:b8:c5:
+                    53:d1:a0:f9:56:19:11:17:b2:d7:2c:a1:21:2f:12:
+                    5a:51:9a:a6:81:f1:8a:ca:ab:e0:78:4a:cd:73:07:
+                    f9:36:f7:35:f4:5e:b9:96:f2:e2:01:54:ef:6e:66:
+                    fa:a0:98:ed:29:77:ba:f0:ef:16:50:b4:af:73:3c:
+                    70:76:37:5e:00:77:76:22:1c:d5:d5:d2:92:e4:e7:
+                    58:0d:97:8e:d6:be:88:70:03:ab:99:04:56:07:99:
+                    41:b2:13:7a:3c:f4:e5:b7:38:c9:cf:34:eb:57:67:
+                    24:8b:37:6e:00:f1:49:38:b1:84:40:53:85:c3:98:
+                    49:29
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Subject Key Identifier: 
+                5D:6B:5A:C7:CE:53:58:CF:49:6C:3C:B6:12:20:F8:74:6D:2B:E8:FD
+            X509v3 Authority Key Identifier: 
+                CA:76:65:7A:C4:7A:94:19:63:0A:B9:0C:69:D2:DD:C5:58:F2:AE:3C
+            X509v3 Subject Alternative Name: 
+                DNS:softrainsvision-servos-rpc.local, DNS:zerobot.local, IP Address:192.168.68.110
+    Signature Algorithm: ecdsa-with-SHA384
+    Signature Value:
+        30:64:02:30:17:7f:c6:4b:58:8a:f9:9a:33:cd:36:86:96:01:
+        eb:83:e4:73:4d:ac:6b:a6:f0:53:82:9e:ca:07:83:64:9c:ba:
+        f9:82:6a:ed:c7:83:cc:aa:b6:63:d2:c5:6a:94:43:91:02:30:
+        35:58:fc:90:d2:17:18:ec:93:72:36:c0:c1:76:86:72:d8:53:
+        b6:af:85:66:d7:9a:f0:74:cb:66:30:c9:45:1f:c1:15:5c:d7:
+        fe:8f:fb:35:3c:aa:ca:cd:99:82:ec:f1
+-----BEGIN CERTIFICATE-----
+MIIDAzCCAoqgAwIBAgICEBgwCgYIKoZIzj0EAwMwRTELMAkGA1UEBhMCVVMxEjAQ
+BgNVBAoMCVNvZnRyYWluczEiMCAGA1UEAwwZU29mdHJhaW5zIEludGVybWVkaWF0
+ZSBDQTAeFw0yNjA3MDQwMDU5NDRaFw0yNzA4MDUwMDU5NDRaMCsxKTAnBgNVBAMM
+IHNvZnRyYWluc3Zpc2lvbi1zZXJ2b3MtcnBjLmxvY2FsMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAjFkOgb7arpUo8eWXtp+LDmKxJ7pAq7vYFWHUiXk1
+JiP4zAGJgKOH0I8k6S+cAlK7JSb9Jq/yA4rPkcvgVLXR4oTU8mc1FhN3SxQWII+D
+716fp4MV/14eVqQ9mGzeihQIdqZi56BvDr3VmVILcONdAC9BgeJojcRdPMXc2JeY
+Ta4D8Qq+uMVT0aD5VhkRF7LXLKEhLxJaUZqmgfGKyqvgeErNcwf5Nvc19F65lvLi
+AVTvbmb6oJjtKXe68O8WULSvczxwdjdeAHd2IhzV1dKS5OdYDZeO1r6IcAOrmQRW
+B5lBshN6PPTltzjJzzTrV2ckizduAPFJOLGEQFOFw5hJKQIDAQABo4G4MIG1MAwG
+A1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgWgMBMGA1UdJQQMMAoGCCsGAQUFBwMB
+MB0GA1UdDgQWBBRda1rHzlNYz0lsPLYSIPh0bSvo/TAfBgNVHSMEGDAWgBTKdmV6
+xHqUGWMKuQxp0t3FWPKuPDBABgNVHREEOTA3giBzb2Z0cmFpbnN2aXNpb24tc2Vy
+dm9zLXJwYy5sb2NhbIINemVyb2JvdC5sb2NhbIcEwKhEbjAKBggqhkjOPQQDAwNn
+ADBkAjAXf8ZLWIr5mjPNNoaWAeuD5HNNrGum8FOCnsoHg2ScuvmCau3Hg8yqtmPS
+xWqUQ5ECMDVY/JDSFxjsk3I2wMF2hnLYU7avhWbXmvB0y2YwyUUfwRVc1/6P+zU8
+qsrNmYLs8Q==
+-----END CERTIFICATE-----

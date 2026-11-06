@@ -1,0 +1,57 @@
+# syntax=docker/dockerfile:1
+
+# Stage 1: Build the Go binary
+FROM golang:1.24 AS builder
+
+# Install build-time dependencies for gocv
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
+    libopencv-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Copy go.mod and go.sum to download dependencies first
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the source code
+COPY . .
+
+# Build daemon binary
+RUN CGO_ENABLED=1 GOOS=linux go build -o /workspace/bin/softrains-detector ./cmd/main.go
+
+# Stage 2: Runtime image
+# Keep runtime on the exact same base family/version as builder to avoid
+# GLIBCXX/OpenCV ABI mismatches (e.g., GLIBCXX_3.4.32 and libopencv*.so.410).
+FROM golang:1.24
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV GODEBUG=netdns=cgo
+
+# Install runtime deps for gocv.
+# Using libopencv-dev here is intentionally broad but keeps ABI aligned with builder.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates \
+        libopencv-dev \
+            libnss-mdns \
+            avahi-utils \
+    && rm -rf /var/lib/apt/lists/* \
+        && sed -ri 's/^hosts:.*/hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4/' /etc/nsswitch.conf \
+    && ldconfig
+
+WORKDIR /workspace
+
+# Install project root CA into the system trust store.
+COPY certs/root-ca.crt /usr/local/share/ca-certificates/softrains-root-ca.crt
+RUN update-ca-certificates
+
+# Copy the binary from the builder stage
+COPY --from=builder /workspace/bin/softrains-detector /workspace/bin/softrains-detector
+
+# Copy the configuration file
+COPY config/config.json /workspace/config/config.json
+COPY certs /workspace/certs
+# Use local config by default; can be overridden via bind mount.
+CMD ["/workspace/bin/softrains-detector"]

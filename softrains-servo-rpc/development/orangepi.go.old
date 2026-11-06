@@ -1,0 +1,168 @@
+package gpio
+
+import (
+	"fmt"
+	"os/exec"
+	"strconv"
+	"sync"
+	"time"
+)
+
+/* ****************************************
+
+ +------+-----+----------+--------+---+  ZERO2W  +---+--------+----------+-----+------+
+ | GPIO | wPi |   Name   |  Mode  | V | Physical | V |  Mode  | Name     | wPi | GPIO |
+ +------+-----+----------+--------+---+----++----+---+--------+----------+-----+------+
+ |      |     |     3.3V |        |   |  1 || 2  |   |        | 5V       |     |      |
+ |  264 |   0 |    SDA.1 |    OFF | 0 |  3 || 4  |   |        | 5V       |     |      |
+ |  263 |   1 |    SCL.1 |    OFF | 0 |  5 || 6  |   |        | GND      |     |      |
+ |  269 |   2 |     PWM3 |    OFF | 0 |  7 || 8  | 0 | ALT2   | TXD.0    | 3   | 224  |
+ |      |     |      GND |        |   |  9 || 10 | 0 | ALT2   | RXD.0    | 4   | 225  |
+ |  226 |   5 |    TXD.5 |    OFF | 0 | 11 || 12 | 0 | OFF    | PI01     | 6   | 257  |
+ |  227 |   7 |    RXD.5 |    OFF | 0 | 13 || 14 |   |        | GND      |     |      |
+ |  261 |   8 |    TXD.2 |    OFF | 0 | 15 || 16 | 1 | OUT    | PWM4     | 9   | 270  |
+ |      |     |     3.3V |        |   | 17 || 18 | 0 | OFF    | PH04     | 10  | 228  |
+ |  231 |  11 |   MOSI.1 |    OFF | 0 | 19 || 20 |   |        | GND      |     |      |
+ |  232 |  12 |   MISO.1 |    OFF | 0 | 21 || 22 | 0 | OFF    | RXD.2    | 13  | 262  |
+ |  230 |  14 |   SCLK.1 |    OFF | 0 | 23 || 24 | 0 | OFF    | CE.0     | 15  | 229  |
+ |      |     |      GND |        |   | 25 || 26 | 0 | OFF    | CE.1     | 16  | 233  |
+ |  266 |  17 |    SDA.2 |    OFF | 0 | 27 || 28 | 0 | OFF    | SCL.2    | 18  | 265  |
+ |  256 |  19 |     PI00 |    OFF | 0 | 29 || 30 |   |        | GND      |     |      |
+ |  271 |  20 |     PI15 |    OFF | 0 | 31 || 32 | 0 | OFF    | PWM1     | 21  | 267  |
+ |  268 |  22 |     PI12 |    OFF | 0 | 33 || 34 |   |        | GND      |     |      |
+ |  258 |  23 |     PI02 |    OFF | 0 | 35 || 36 | 0 | OFF    | PC12     | 24  | 76   |
+ |  272 |  25 |     PI16 |    OFF | 0 | 37 || 38 | 0 | OFF    | PI04     | 26  | 260  |
+ |      |     |      GND |        |   | 39 || 40 | 1 | OUT    | PI03     | 27  | 259  |
+ +------+-----+----------+--------+---+----++----+---+--------+----------+-----+------+
+ | GPIO | wPi |   Name   |  Mode  | V | Physical | V |  Mode  | Name     | wPi | GPIO |
+ +------+-----+----------+--------+---+  ZERO2W  +---+--------+----------+-----+------+
+
+ We use these with the gpio command line utility: root@orangepizero2w:~/wiringOP# gpio -h
+gpio: Usage: gpio -v
+       gpio -h
+       gpio [-g|-1] ...
+       gpio <mode/qmode/read/write/pwm/pwmTone> ...
+       gpio <toggle/blink> <pin>
+       gpio readall
+       gpio unexportall/exports
+       gpio export/edge/unexport ...
+       gpio pwmr <pin> <range>
+       gpio pwmc <pin> <divider>
+       gpio i2cd/i2cdetect port
+       gpio serial port
+       gpio rbx/rbd
+       gpio wb <value>
+
+
+*********************************************************************************/
+
+// OrangePiBoard represents the GPIO interface for Orange Pi using gpio command line utility
+type OrangePiBoard struct {
+	mu     sync.Mutex
+	opened bool
+}
+
+// NewOrangePiBoard creates a new Orange Pi GPIO controller using command line gpio utility
+func NewOrangePiBoard() (*OrangePiBoard, error) {
+	return &OrangePiBoard{
+		opened: true,
+	}, nil
+}
+
+// Close cleans up the GPIO connection
+func (b *OrangePiBoard) Close() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if !b.opened {
+		return
+	}
+	b.opened = false
+
+	// Unexport all pins to clean up
+	// Note: We don't track which pins were exported, so we can't cleanly unexport them all
+	// but the system will clean up on reboot or when GPIO is released by process
+}
+
+// SetDigital sets a digital value to a GPIO pin using gpio command line utility
+func (b *OrangePiBoard) SetDigital(pinNum int, on bool, activeHigh bool) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if !b.opened {
+		return fmt.Errorf("gpio board is closed")
+	}
+
+	// Make sure GPIO pin is exported (if not already done by the system or previous usage)
+	cmd := exec.Command("gpio", "-g", "mode", strconv.Itoa(pinNum), "out")
+	output, err := cmd.CombinedOutput()
+	if err != nil && !isAlreadyExportedError(string(output)) {
+		return fmt.Errorf("failed to set pin %d mode to out: %w. Output: %s", pinNum, err, string(output))
+	}
+
+	// Set the value
+	value := 0
+	if on == activeHigh {
+		value = 1
+	}
+
+	cmd = exec.Command("gpio", "-g", "write", strconv.Itoa(pinNum), strconv.Itoa(value))
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to write value %d to pin %d: %w. Output: %s", value, pinNum, err, string(output))
+	}
+
+	return nil
+}
+
+// PulseServo pulses a servo motor at a specific pin with given parameters
+func (b *OrangePiBoard) PulseServo(pinNum int, pulseWidthMicros int, pulseCount int, period time.Duration) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if !b.opened {
+		return fmt.Errorf("gpio board is closed")
+	}
+
+	// Make sure GPIO pin is exported and set to output mode
+	cmd := exec.Command("gpio", "-g", "mode", strconv.Itoa(pinNum), "out")
+	output, err := cmd.CombinedOutput()
+	if err != nil && !isAlreadyExportedError(string(output)) {
+		return fmt.Errorf("failed to set pin %d mode to out for servo: %w. Output: %s", pinNum, err, string(output))
+	}
+
+	pulseDur := time.Duration(pulseWidthMicros) * time.Microsecond
+	if pulseDur <= 0 || pulseDur >= period {
+		return fmt.Errorf("invalid pulse width %d for period %s", pulseWidthMicros, period)
+	}
+	lowDur := period - pulseDur
+
+	for i := 0; i < pulseCount; i++ {
+		// High pulse
+		cmd = exec.Command("gpio", "-g", "write", strconv.Itoa(pinNum), "1")
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to write HIGH to pin %d during pulse: %w. Output: %s", pinNum, err, string(output))
+		}
+		time.Sleep(pulseDur)
+
+		// Low pulse
+		cmd = exec.Command("gpio", "-g", "write", strconv.Itoa(pinNum), "0")
+		output, err = cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to write LOW to pin %d during pulse: %w. Output: %s", pinNum, err, string(output))
+		}
+		time.Sleep(lowDur)
+	}
+
+	return nil
+}
+
+// Helper function to detect if the error is due to the pin already being exported
+func isAlreadyExportedError(output string) bool {
+	// Typical error messages when pin is already exported
+	if output != "" && (string(output) == "gpio: export failed: Operation not permitted\n" ||
+		string(output) == "gpio: export failed: Device or resource busy\n") {
+		return true
+	}
+	return false
+}

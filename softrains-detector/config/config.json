@@ -1,0 +1,139 @@
+{
+  "defaultStartupProfile": "head-tracker",
+  "connections": [
+    {
+      "name": "zerobot-rtsp",
+      "description": "RTSP feed with the same gimbal/control endpoint",
+      "source": "rtsp",
+      "camera": {
+        "url": "rtsp://192.168.68.110:8554/cam",
+        "fov": 30,
+        "width": 640,
+        "height": 480,
+        "orientation": {
+          "rotate": 180,
+          "flipHorizontal": true,
+          "flipVertical": false
+        }
+      },
+      "cameraType": "standard",
+      "control": {
+        "url": "https://zerobot.local:8443",
+        "rpcEndpoint": "zerobot.local:8443",
+        "serverName": "zerobot.local",
+        "caCert":"certs/softrainsvision-servos-rpc.local.crt",
+        "protocol": "query-param",
+        "pan": {
+          "min": 20,
+          "max": 120,
+          "center": 90
+        }
+      }
+    },
+    {
+      "name": "orangebot-rtsp",
+      "description": "RTSP feed with the same gimbal/control endpoint",
+      "source": "rtsp",
+      "camera": {
+        "url": "rtsp://192.168.68.67:8554/cam",
+        "fov": 90,
+        "width": 1280,
+        "height": 720,
+        "orientation": {
+          "rotate": 180,
+          "flipHorizontal": false,
+          "flipVertical": false
+        }
+      },
+      "cameraType": "standard",
+      "control": {
+        "url": "https://192.168.68.67:9444",
+        "rpcEndpoint": "192.168.68.67:9444",
+        "serverName": "softrainsvisions-servos-rpc3.local",
+        "caCert":"certs/softrainsvision-servos-rpc2.local.crt",
+        "protocol": "query-param",
+        "pan": {
+          "min": 20,
+          "max": 120,
+          "center": 90
+        }
+      }
+    }
+  ],
+  "startupProfiles": [
+    {
+      "name": "head-tracker",
+      "description": "Traditional head mounted sentry tracker profile",
+      "botSetup": {
+        "connectionName": "orangebot-rtsp",
+        "aiName": "default",
+        "tracking": {
+          "panSensitivity": 0.15,
+          "tiltSensitivity": 0.15,
+          "deadZone": 30,
+          "controlTimeoutMs": 30000,
+          "controlRetryIntervalMs": 2000,
+          "detectionTimeoutMs": 120000,
+          "actionTriggers": [
+            {
+              "type": "left-wrist",
+              "minConfidence": 0.35,
+              "timeoutMs": 5000
+            },
+            {
+              "type": "toggle-laser"
+            }
+          ],
+          "markingMode": {
+            "enabled": true
+          },
+          "laser": {
+            "enabled": true
+          },
+          "scanMode": {
+            "enabled": true,
+            "scanRange": 100,
+            "scanStep": 10,
+            "scanIntervalMs": 5000
+          }
+        }
+      },
+      "display": {
+        "enabled": true,
+        "windowTitle": "Head Tracker View",
+        "frameInfoInterval": 2,
+        "rotateDisplay": 180,
+	"headless": false
+      }
+    }
+  ],
+  "ai": [
+    {
+      "name": "default",
+      "confidenceThreshold": 0.8,
+      "nmsThreshold": 0.4,
+      "processEveryNFrames": 10,
+      "rpcEndpoint": "192.168.68.103:9443",
+      "serverName": "softrainsvision-analytics.local",
+      "caCert": "certs/softrainsvision-analytics.local.cert.pem",
+      "colorAnalysis": {
+        "enabled": false,
+        "mode": "dominant",
+        "sampleStep": 4
+      },
+      "detectionFilters": {
+        "minBoxWidth": 10,
+        "minBoxHeight": 20,
+        "minBoxArea": 200,
+        "maxAreaRatio": 0.67,
+        "maxWidthRatio": 0.9,
+        "maxHeightRatio": 0.95,
+        "usePose": true
+      }
+    }
+  ],
+  "logging": {
+    "level": "debug",
+    "format": "json"
+  }
+}

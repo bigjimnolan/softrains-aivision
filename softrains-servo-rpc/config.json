@@ -1,0 +1,114 @@
+{
+    "listenAddress": "0.0.0.0:9444",
+    "tls": {
+        "certFile": "server.crt",
+        "keyFile": "server.key",
+        "clientCAFile": "",
+        "requireClientCert": false
+    },
+    "pan": {
+        "pin": 356,
+        "min": 0.0,
+        "max": 180.0,
+        "home": 90.0,
+        "enabled": true
+    },
+    "pwm": {
+        "minPulseWidth": 500,
+        "maxPulseWidth": 2500,
+        "periodMs": 20,
+        "pulseCount": 50,
+        "signalDurationMs": 1000,
+        "comment": "Pulse widths in microseconds, period and signal duration in milliseconds"
+    },
+    "laser": {
+        "enabled": true,
+        "pin": 97,
+        "activeHigh": true,
+        "defaultOn": false
+    },
+"switches": [
+  {
+    "id": 1,
+    "enabled": true,
+    "pin": 96,
+    "activeHigh": true,
+    "defaultOn": false,
+    "name": "blue_wire"
+  },
+  {
+    "id": 2,
+    "enabled": true,
+    "pin": 97,
+    "activeHigh": true,
+    "defaultOn": false,
+    "name": "laser"
+  },
+  {
+    "id": 3,
+    "enabled": true,
+    "pin": 98,
+    "activeHigh": true,
+    "defaultOn": false,
+    "name": "green_wire"
+  },
+  {
+    "id": 4,
+    "enabled": true,
+    "pin": 100,
+    "activeHigh": true,
+    "defaultOn": false,
+    "name": "red_wire"
+  }
+    ],
+    "resource": {
+        "minAxisCommandIntervalMs": 75,
+        "minAxisDeltaDegrees": 0.25,
+        "maxConcurrentAxisMoves": 1
+    },
+    "board": "orange",
+    "snapshot": {
+        "enabled": true,
+        "device": "/dev/video0",
+        "inputFormat": "mjpeg",
+        "width": 1280,
+        "height": 720,
+        "framerate": 15,
+        "quality": 2,
+        "ffmpegPath": "ffmpeg",
+        "timeoutMs": 3000,
+        "maxBytes": 4194304
+    },
+    "wakeword": "Hey Asshole",
+    "speechModelPath": "/home/bigjim/stt_workspace/vosk-libs/nerd-dictation/model/vosk-model-small-en-us-0.15",
+    "speakCommand": [
+        "sudo",
+        "-u",
+        "bigjim",
+        "XDG_RUNTIME_DIR=/run/user/1000",
+        "PULSE_SERVER=unix:/run/user/1000/pulse/native",
+        "espeak-ng",
+        "-s",
+        "160",
+        "-g",
+        "10"
+    ],
+    "aiModel": "llama3.1:latest",
+    "rag": {
+        "indexPath": "/home/bigjim/rag_index"
+    },
+    "skills": [
+        {
+            "name": "desk_light_on",
+            "description": "Turns on the desk or workspace light when the user asks for light at the desk or office.",
+            "url": "http://localhost:8080/api/device/desk_light/on?token={token}",
+            "tokenEnv": "SOFTRAINS_SKILL_TOKEN"
+        },
+        {
+            "name": "desk_light_off",
+            "description": "Turns off the desk or workspace light when the user asks to shut off the desk or office light.",
+            "url": "http://localhost:8080/api/device/desk_light/off?token={token}",
+            "tokenEnv": "SOFTRAINS_SKILL_TOKEN"
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: softrainsvision-detector
+  namespace: softrains
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: softrainsvision-detector
+  template:
+    metadata:
+      labels:
+        app: softrainsvision-detector
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: softrainsvision-detector
+        image: softrainsvision-detector:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command:
+        - /workspace/bin/softrains-detector
+        args:
+        - --config
+        - /workspace/config/config.json
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        volumeMounts:
+        - name: detector-config
+          mountPath: /workspace/config
+        - name: detector-certs
+          mountPath: /workspace/certs
+      volumes:
+      - name: detector-config
+        hostPath:
+          path: /etc/softrains/detector/config
+          type: DirectoryOrCreate
+      - name: detector-certs
+        hostPath:
+          path: /etc/softrains/detector/certs
+          type: DirectoryOrCreate
